@@ -86,7 +86,6 @@ def main():
             if hero.x < monster.x + MONSTER_WIDTH and hero.x + HERO_WIDTH > monster.x and hero.y < monster.y + MONSTER_HEIGHT and hero.y + HERO_HEIGHT > monster.y:
                 run = False
 
-
         # Отрисовка
         screen.fill((200, 200, 200))  # Очистка экрана
         for monster in monsters:

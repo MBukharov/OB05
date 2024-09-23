@@ -139,7 +139,7 @@ def main():
                     if button_rect.collidepoint(event.pos):
                         monsters.clear()
                         hero.x = int(WIDTH / 2 - HERO_WIDTH / 2)
-                        hero.y = HEIGHT - HERO_HEIGHT - 20
+                        hero.y = HEIGHT - HERO_HEIGHT - 50
                         start_ticks = pygame.time.get_ticks()
                         game_over = False
 

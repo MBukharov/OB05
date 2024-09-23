@@ -8,8 +8,8 @@ pygame.init()
 # Константы
 WIDTH, HEIGHT = 800, 600
 FPS = 60
-MONSTER_WIDTH, MONSTER_HEIGHT = 70, 70
-HERO_WIDTH, HERO_HEIGHT = 80, 80
+MONSTER_WIDTH, MONSTER_HEIGHT = 60, 60
+HERO_WIDTH, HERO_HEIGHT = 70, 70
 MONSTER_SPEED = 5
 
 # Настройка экрана
@@ -51,12 +51,16 @@ monsters = []
 def main():
     clock = pygame.time.Clock()
     run = True
+    start_ticks = pygame.time.get_ticks()  # Запоминаем начальное время
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+        # Обновляем счетчик времени
+        seconds_survived = (pygame.time.get_ticks() - start_ticks) // 1000
 
         # Добавление нового монстра
         if random.randint(1, 25) == 1:
@@ -92,6 +96,11 @@ def main():
             monster.draw(screen)
 
         hero.draw(screen)
+
+        # Отображение счета
+        font = pygame.font.SysFont(None, 36)
+        text = font.render(f"Time Survived: {seconds_survived} seconds", True, (0, 0, 0))
+        screen.blit(text, (10, 10))
 
         pygame.display.flip()
         clock.tick(FPS)

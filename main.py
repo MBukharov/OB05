@@ -1,6 +1,9 @@
+import time
+
 import pygame
 import random
 import sys
+import time
 
 # Инициализация Pygame
 pygame.init()
@@ -11,6 +14,8 @@ FPS = 60
 MONSTER_WIDTH, MONSTER_HEIGHT = 60, 60
 HERO_WIDTH, HERO_HEIGHT = 70, 70
 MONSTER_SPEED = 5
+SHOT_SPEED = 10
+SHOT_WIDTH, SHOT_HEIGHT = 6, 20
 
 # Настройка экрана
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -32,13 +37,27 @@ class Monster:
         surface.blit(self.image, (self.x, self.y))
 
 class Hero:
-    def __init__(self,image):
+    def __init__(self,image,patrons = 10):
         self.x = int(WIDTH/2 - HERO_WIDTH/2)
         self.y = HEIGHT - HERO_HEIGHT - 50
         self.image = image
         self.visible = True
+        self.patrons = patrons
+        self.last_shot_time = 0
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
+
+    def shot(self,shots):
+        if self.patrons > 0 and self.can_shoot():
+            shots.append(Shot())
+            self.patrons -= 1
+
+    def can_shoot(self):
+        current_time = time.time()
+        if current_time - self.last_shot_time >= 0.1:  # 0.1 секунды
+            self.last_shot_time = current_time
+            return True
+        return False
 
 class Patron:
     def __init__(self,image):
@@ -50,18 +69,27 @@ class Patron:
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
 
+class Shot:
+    def __init__(self):
+        self.x = hero.x + HERO_WIDTH // 2 - SHOT_WIDTH // 2
+        self.y = hero.y - SHOT_HEIGHT
+        self.image = shot_image
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+    def update(self):
+        self.y -= SHOT_SPEED
+
 
 list_of_monster_images = []
 for i in range(1,12):
     list_of_monster_images.append(pygame.image.load(f"img/m{i}.png").convert_alpha())
 
 patron_image = pygame.image.load("img/patrons.png").convert_alpha()
+shot_image = pygame.Surface((SHOT_WIDTH, SHOT_HEIGHT))
+shot_image.fill((242, 242, 28))
 
 hero = Hero(pygame.image.load("img/hero.png"))
 game_over_image = pygame.image.load("img/gameover.png").convert_alpha()
-
-monsters = []
-patrons = []
 
 def draw_game_over_screen(seconds_survived):
     screen.fill((0, 0, 0))
@@ -89,6 +117,10 @@ def main():
     game_over = False
     start_ticks = pygame.time.get_ticks()  # Запоминаем начальное время
 
+    monsters = []
+    patrons = []
+    shots = []
+
     while run:
         if not game_over:
             for event in pygame.event.get():
@@ -106,7 +138,7 @@ def main():
 
             # Добавление патронов
             if random.randint(1, 200) == 1:
-                patrons.append(Patron(patron_image))
+                 patrons.append(Patron(patron_image))
 
             # Обновление положения монстров
             for monster in monsters:
@@ -119,6 +151,11 @@ def main():
                 if patron.y > HEIGHT:
                     patrons.remove(patron)
 
+            for shot in shots:
+                shot.update()
+                if shot.y < 0:
+                    shots.remove(shot)
+
             #Перемещение героя
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT] and hero.x > 0:
@@ -130,7 +167,20 @@ def main():
             if keys[pygame.K_DOWN] and hero.y < HEIGHT - HERO_HEIGHT:
                 hero.y += 5
 
+            #Выстрел
+            if keys[pygame.K_SPACE]:
+                hero.shot(shots)
+
+
+
+
             #Обработка столкновения монстров
+
+            for monster in monsters[:]:
+                if hero.x < monster.x + MONSTER_WIDTH and hero.x + HERO_WIDTH > monster.x and hero.y < monster.y + MONSTER_HEIGHT and hero.y + HERO_HEIGHT > monster.y:
+                    game_over = True
+
+            # Обработка столкновения монстров
 
             for monster in monsters[:]:
                 if hero.x < monster.x + MONSTER_WIDTH and hero.x + HERO_WIDTH > monster.x and hero.y < monster.y + MONSTER_HEIGHT and hero.y + HERO_HEIGHT > monster.y:
@@ -143,6 +193,9 @@ def main():
 
             for patron in patrons:
                 patron.draw(screen)
+
+            for shot in shots:
+                shot.draw(screen)
 
             hero.draw(screen)
 

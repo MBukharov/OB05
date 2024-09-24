@@ -171,9 +171,6 @@ def main():
             if keys[pygame.K_SPACE]:
                 hero.shot(shots)
 
-
-
-
             #Обработка столкновения монстров
 
             for monster in monsters[:]:
@@ -186,7 +183,16 @@ def main():
                 if hero.x < monster.x + MONSTER_WIDTH and hero.x + HERO_WIDTH > monster.x and hero.y < monster.y + MONSTER_HEIGHT and hero.y + HERO_HEIGHT > monster.y:
                     game_over = True
 
-            # Отрисовка
+            # Обработка столкновения монстров c патронами
+            for shot in shots:
+                for monster in monsters:
+                    if monster.x < shot.x < monster.x + MONSTER_WIDTH and monster.y < shot.y <monster.y + MONSTER_HEIGHT:
+                        monsters.remove(monster)
+                        shots.remove(shot)
+
+
+
+                # Отрисовка
             screen.fill((200, 200, 200))  # Очистка экрана
             for monster in monsters:
                 monster.draw(screen)

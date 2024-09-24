@@ -183,7 +183,13 @@ def main():
                 if hero.x < monster.x + MONSTER_WIDTH and hero.x + HERO_WIDTH > monster.x and hero.y < monster.y + MONSTER_HEIGHT and hero.y + HERO_HEIGHT > monster.y:
                     game_over = True
 
-            # Обработка столкновения монстров c патронами
+            # Обработка столкновения героя с патронами
+            for patron in patrons:
+                if hero.x < patron.x + MONSTER_WIDTH and hero.x + HERO_WIDTH > patron.x and hero.y < patron.y + MONSTER_HEIGHT and hero.y + HERO_HEIGHT > patron.y:
+                    hero.patrons += 10
+                    patrons.remove(patron)
+
+            # Обработка столкновения монстров c выстрелами
             for shot in shots:
                 for monster in monsters:
                     if monster.x < shot.x < monster.x + MONSTER_WIDTH and monster.y < shot.y <monster.y + MONSTER_HEIGHT:
@@ -208,7 +214,9 @@ def main():
             # Отображение счета
             font = pygame.font.SysFont(None, 36)
             text = font.render(f"Время выживания: {seconds_survived} секунд", True, (0, 0, 0))
+            text2 = font.render(f"Патроны: {hero.patrons}", True, (0, 0, 0))
             screen.blit(text, (10, 10))
+            screen.blit(text2, (WIDTH - 200, 10))
 
             pygame.display.flip()
             clock.tick(FPS)

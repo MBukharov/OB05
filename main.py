@@ -40,15 +40,28 @@ class Hero:
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
 
+class Patron:
+    def __init__(self,image):
+        self.x = random.randint(0, WIDTH - MONSTER_WIDTH)
+        self.y = -2*MONSTER_HEIGHT
+        self.image = image
+    def update(self):
+        self.y += 2*MONSTER_SPEED
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+
 
 list_of_monster_images = []
 for i in range(1,12):
     list_of_monster_images.append(pygame.image.load(f"img/m{i}.png").convert_alpha())
 
+patron_image = pygame.image.load("img/patrons.png").convert_alpha()
+
 hero = Hero(pygame.image.load("img/hero.png"))
 game_over_image = pygame.image.load("img/gameover.png").convert_alpha()
 
 monsters = []
+patrons = []
 
 def draw_game_over_screen(seconds_survived):
     screen.fill((0, 0, 0))
@@ -91,11 +104,20 @@ def main():
                 monster_number = random.randint(0, len( list_of_monster_images) - 1)
                 monsters.append(Monster( list_of_monster_images[monster_number]))
 
+            # Добавление патронов
+            if random.randint(1, 200) == 1:
+                patrons.append(Patron(patron_image))
+
             # Обновление положения монстров
-            for monster in monsters[:]:
+            for monster in monsters:
                 monster.update()
                 if monster.y > HEIGHT:
                     monsters.remove(monster)
+
+            for patron in patrons:
+                patron.update()
+                if patron.y > HEIGHT:
+                    patrons.remove(patron)
 
             #Перемещение героя
             keys = pygame.key.get_pressed()
@@ -118,6 +140,9 @@ def main():
             screen.fill((200, 200, 200))  # Очистка экрана
             for monster in monsters:
                 monster.draw(screen)
+
+            for patron in patrons:
+                patron.draw(screen)
 
             hero.draw(screen)
 
